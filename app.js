@@ -1,9 +1,11 @@
 const express = require('express');
+
 const app = express();
 app.use(express.json())
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3300;
 const HomeController = require('./controllers/homeController')
 const SaveLoanController = require('./controllers/saveLoanController')
+const CreateUser = require('./controllers/userController')
 
 
 
@@ -14,13 +16,16 @@ app.get('/', (req, res) => {
 });
 
 // Add User Id to route
-app.post('/save_loan',(req,res)=>{
+app.post('/save_loan/:id',(req,res)=>{
   const save = new SaveLoanController;
   res.send(save.create(req.body))
 
 })
 
-
+app.post('/create_user',(req,res)=>{
+  const createUser = new CreateUser;
+  res.send(createUser.create(req.body))
+})
 
 
 app.get('/dashboard', (req, res) => {

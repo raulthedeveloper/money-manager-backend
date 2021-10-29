@@ -1,4 +1,5 @@
 const mysqlConnect = require('../database/mysqlConnect')
+require('dotenv').config();
 
 
 
@@ -7,6 +8,7 @@ const tableSchema = {
 
 }
 
+// process.env.USER_ID // "239482"
 
 
 
@@ -22,13 +24,22 @@ module.exports = class SaveLoanController {
 
     create(request)
     {
-        const database = new mysqlConnect('localhost','root','root','money_app')
+        console.log(process.env.PASSWORD)
 
 
-        database.init(sql)
+        const database = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE, process.env.LOANTABLE)
 
 
-        // database.insert()
+
+        const createTableQuery = '(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), loan INT)'
+
+        const insertQuery = `INSERT INTO ${database.table} (name, loan) VALUES ('${request.name}','${request.amount}')`
+
+        database.init(createTableQuery)
+
+
+        // Database still isnt  automacally recognizing table , its an async issue
+        database.insert(insertQuery)
         
         // Save to the database using mysql
         // Checks if database exist if it doesnt then it creates it
