@@ -3,14 +3,6 @@ require('dotenv').config();
 
 
 
-const tableSchema = {
-    tableName:'Loans',
-
-}
-
-// process.env.USER_ID // "239482"
-
-
 
 module.exports = class SaveLoanController {
     
@@ -24,8 +16,7 @@ module.exports = class SaveLoanController {
 
     create(request)
     {
-        console.log(process.env.PASSWORD)
-
+    
 
         const database = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE, process.env.LOANTABLE)
 

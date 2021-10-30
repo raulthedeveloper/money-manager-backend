@@ -6,6 +6,11 @@ const PORT = process.env.PORT || 3300;
 const HomeController = require('./controllers/homeController')
 const SaveLoanController = require('./controllers/saveLoanController')
 const CreateUser = require('./controllers/userController')
+const LoginController = require('./controllers/loginController')
+
+const save = new SaveLoanController;
+const createUser = new CreateUser;
+const login = new LoginController;
 
 
 
@@ -17,14 +22,17 @@ app.get('/', (req, res) => {
 
 // Add User Id to route
 app.post('/save_loan/:id',(req,res)=>{
-  const save = new SaveLoanController;
   res.send(save.create(req.body))
 
 })
 
 app.post('/create_user',(req,res)=>{
-  const createUser = new CreateUser;
   res.send(createUser.create(req.body))
+})
+
+app.post('/login',(req,res)=>{
+  res.send(login.authenticateUser(req.body))
+
 })
 
 
