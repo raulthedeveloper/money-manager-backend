@@ -41,18 +41,21 @@ module.exports = class mySqlConnect {
 
   }
 
-  queryTable(sql){
+   async queryTable(sql,callback,request,response){
     var con = this.connection()
 
-    let queryResult;
+   
 
-
-   con.query(sql, function (err, result) {
+     con.query(sql, function (err, result) {
       if (err) throw err;
-       console.log(result);
+
+
+
+      callback(result,request,response)
+      
+      //  console.log(result[0].user_name,result[0].password);
     });
 
-    
 
   }
 

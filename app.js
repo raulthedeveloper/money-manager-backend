@@ -14,6 +14,10 @@ const login = new LoginController;
 
 
 
+
+
+
+
 app.get('/', (req, res) => {
   const home = new HomeController;
   res.send(home.index('<h1>Some HTML</h1>'));
@@ -27,12 +31,14 @@ app.post('/save_loan/:id',(req,res)=>{
 })
 
 app.post('/create_user',(req,res)=>{
-  res.send(createUser.create(req.body))
+    createUser.create(req.body)
+    res.send()
 })
 
 app.post('/login',(req,res)=>{
-  res.send(login.authenticateUser(req.body))
 
+  login.authenticateUser(req.body,res)
+  
 })
 
 
