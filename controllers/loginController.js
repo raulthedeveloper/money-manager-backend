@@ -2,7 +2,7 @@ const mysqlConnect = require('../database/mysqlConnect')
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 
 
 const database = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE, process.env.USERTABLE)
@@ -10,21 +10,26 @@ const database = new mysqlConnect(process.env.HOST, process.env.USERNAME, proces
 
 
 module.exports = class LoginController {
-    
-    async processResult(query,request,response){
 
+
+    async processResult(query,request,response){
         // this is where the magic happens
         console.log('Its time to process')
-
-
-        const queryPassword = query[0].password
-
-
-        if(queryPassword == null){
-            return response.status(400)
-        }
+        
+      
+        
 
         try {
+            const queryPassword = query[0].password
+            const queryUserName = query[0].user_name
+
+            if(queryPassword == null){
+                return response.status(400)
+            }
+    
+            if(queryUserName == null){
+                return response.status(400)
+            }
 
             if(await bcrypt.compare(request.password, queryPassword)){
                 console.log('password worked')
@@ -58,16 +63,20 @@ module.exports = class LoginController {
 
     }
 
-    authenticateUser(request,response,returnData){
+    async authenticateUser(request,response,returnData){
 
-      console.log('Its time to authenticate')
+        console.log('Its time to authenticate')
+      
 
-       const insertQuery = `SELECT user_name, password FROM ${database.table} WHERE user_name LIKE "Siabo13" AND password LIKE "$2b$06$UMq2M5DB65LEHalWqMDDh.G/aIlY//uR.ViQr1FEWKOFvB91j/eFu"`
-
-       database.queryTable(insertQuery,this.processResult,request,response,returnData)
+       const insertQuery = `SELECT user_name, password FROM ${database.table} WHERE user_name LIKE "${request.user_name}"`
+    //    AND password LIKE "$2b$06$XZj7ppDnGew/RRfOx1U/WuTz.wq0kwyZgdVLWH.FzYWtCK0taC.mm"
+       database.queryTable(insertQuery,this.processResult,request,response)
 
   
     }
 
+
+     
+ 
     
 }

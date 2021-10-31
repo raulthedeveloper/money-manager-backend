@@ -6,11 +6,14 @@ const PORT = process.env.PORT || 3300;
 const HomeController = require('./controllers/homeController')
 const SaveLoanController = require('./controllers/saveLoanController')
 const CreateUser = require('./controllers/userController')
-const LoginController = require('./controllers/loginController')
+const LoginController = require('./controllers/loginController');
+const  jwt  = require('jsonwebtoken');
+require('dotenv').config();
 
-const save = new SaveLoanController;
+const save = new SaveLoanController; 
 const createUser = new CreateUser;
 const login = new LoginController;
+
 
 
 
@@ -35,17 +38,44 @@ app.post('/create_user',(req,res)=>{
     res.send()
 })
 
+
+
 app.post('/login',(req,res)=>{
+login.request = req.body
+login.response = res
+
 
   login.authenticateUser(req.body,res)
+ 
   
 })
 
 
-app.get('/dashboard', (req, res) => {
-  res.send('<h1>I am the dashboard page</h1>');
-  res.send('<p>Even more HTML</p>');
+app.get('/dashboard',authenticateToken,(req, res) => {
+  res.send(req.user)
 });
+
+
+function authenticateToken(req, res, next){
+
+
+  const authHeader = req.headers['authorization']
+
+
+  const token = authHeader && authHeader.split(' ')[1]
+
+  if(token == null) return res.sendStatus(401)
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err,user)=>{
+
+      if (err) return res.sendStatus(403)
+      // check if request user = user
+      req.user = user
+      next()
+    })
+  }
+
+
 
 
 

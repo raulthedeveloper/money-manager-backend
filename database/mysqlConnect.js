@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
+const { response } = require('express');
 
 
 module.exports = class mySqlConnect {
@@ -21,20 +22,22 @@ module.exports = class mySqlConnect {
     });
   }
 
+
+  // Hashes password
   async hashIt(password) {
     const salt = await bcrypt.genSalt(6);
     const hashed = await bcrypt.hash(password, salt);
 
+  
     return hashed
   }
 
 
 
   insert(sql) {
-    var con = this.connection()
 
 
-    con.query(sql, function (err, result) {
+    this.connection().query(sql, function (err, result) {
       if (err) throw err;
       console.log("record inserted");
     });
@@ -42,16 +45,14 @@ module.exports = class mySqlConnect {
   }
 
    async queryTable(sql,callback,request,response){
-    var con = this.connection()
 
-   
-
-     con.query(sql, function (err, result) {
+    this.connection().query(sql, function (err, result) {
       if (err) throw err;
 
 
-
       callback(result,request,response)
+
+      
       
       //  console.log(result[0].user_name,result[0].password);
     });
