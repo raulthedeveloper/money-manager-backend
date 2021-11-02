@@ -10,6 +10,9 @@ const LoginController = require('./controllers/loginController');
 const  jwt  = require('jsonwebtoken');
 require('dotenv').config();
 
+const mysqlConnect = require('./database/mysqlConnect')
+
+
 const save = new SaveLoanController; 
 const createUser = new CreateUser;
 const login = new LoginController;
@@ -40,20 +43,19 @@ app.post('/create_user',(req,res)=>{
 
 
 
-app.post('/login',(req,res)=>{
-login.request = req.body
-login.response = res
+// app.post('/login',(req,res)=>{
 
-
-  login.authenticateUser(req.body,res)
+//   login.authenticateUser(req.body,res)
  
   
-})
+// })
 
 
 app.get('/dashboard',authenticateToken,(req, res) => {
   res.send(req.user)
 });
+
+
 
 
 function authenticateToken(req, res, next){
@@ -79,4 +81,12 @@ function authenticateToken(req, res, next){
 
 
 
-app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
+app.listen(PORT, () => {
+  const databaseCreate = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE, process.env.LOANTABLE)
+
+  console.log(`Server is listening on port ${PORT}`)
+databaseCreate.createNewDatabase()
+
+
+});
+

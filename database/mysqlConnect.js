@@ -53,9 +53,7 @@ module.exports = class mySqlConnect {
       callback(result,request,response)
 
       
-      
-      //  console.log(result[0].user_name,result[0].password);
-    });
+      });
 
 
   }
@@ -64,75 +62,81 @@ module.exports = class mySqlConnect {
     // Deletes record
   }
 
-  createTable(sql) {
+
+  async createTable(table,createTableQuery) {
     var con = this.connection()
 
-    // checks if table exists and then adds query
+    var sql = `CREATE TABLE IF NOT EXISTS ${table}  ${createTableQuery}`
 
-
-     con.query(sql, function (err, result) {
-      if (err) throw err;
-      console.log('table was created')
-      // console.log(`${database} database selected`);
-    });
-
-    con.end()
+      const queryDB = await con.query(sql, function (err, result) {
+          if (err) throw err;
+          console.log(`${table} table created`);
+        });
+    
 
 
     
   }
 
-
-  async createDatabase(database, table, createTableQuery) {
-    var con = mysql.createConnection({
+   createNewDatabase(){
+    var  con = mysql.createConnection({
       host: this.host,
       user: this.user,
       password: this.password,
     });
-
-    var sql = `SHOW DATABASES LIKE '${this.database}'`;
-
+    var sql = `CREATE DATABASE IF NOT EXISTS ${this.database}`;
 
     con.query(sql, function (err, result) {
       if (err) throw err;
-      if (result.length == 0) {
-        console.log('No database exists')
-        var sql = `CREATE DATABASE IF NOT EXISTS ${database}`;
-
-        con.query(sql, function (err, result) {
-          if (err) throw err;
-          console.log("database created");
-        });
-
-        sql = `USE ${database}`
-
-        con.query(sql, function (err, result) {
-          if (err) throw err;
-          console.log(`${database} database selected`);
-        });
-
-        sql = `CREATE TABLE ${table} ${createTableQuery}`
-
-        con.query(sql, function (err, result) {
-          if (err) throw err;
-          console.log(`${table} table created`);
-        });
-
-      } else {
-        console.log('database exists')
-
-      }
+      console.log("database created");
     });
-
-
-
   }
 
-  init(createTableQuery) {
-    this.createDatabase(this.database, this.table, createTableQuery)
 
-    this.connection().end();
-    // this.createTable(sql)
+  // async createDatabase(database, table, createTableQuery) {
+  //   var con = mysql.createConnection({
+  //     host: this.host,
+  //     user: this.user,
+  //     password: this.password,
+  //   });
 
-  }
+  //   var sql = `SHOW DATABASES LIKE '${this.database}'`;
+
+
+  //   con.query(sql, function (err, result) {
+  //     if (err) throw err;
+  //     if (result.length == 0) {
+  //       console.log('No database exists')
+  //       var sql = `CREATE DATABASE IF NOT EXISTS ${database}`;
+
+  //       con.query(sql, function (err, result) {
+  //         if (err) throw err;
+  //         console.log("database created");
+  //       });
+
+  //       sql = `USE ${database}`
+
+  //       con.query(sql, function (err, result) {
+  //         if (err) throw err;
+  //         console.log(`${database} database selected`);
+  //       });
+
+  //       sql = `CREATE TABLE ${table} ${createTableQuery}`
+
+  //       con.query(sql, function (err, result) {
+  //         if (err) throw err;
+  //         console.log(`${table} table created`);
+  //       });
+
+  //     } else {
+  //       console.log('database exists')
+
+  //     }
+  //   });
+
+
+
+  // }
+
+
 }

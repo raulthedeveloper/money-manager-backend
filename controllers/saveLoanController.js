@@ -21,19 +21,13 @@ module.exports = class SaveLoanController {
         const database = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE, process.env.LOANTABLE)
 
 
-
-        const createTableQuery = '(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), loan INT)'
-
-        const insertQuery = `INSERT INTO ${database.table} (name, loan) VALUES ('${request.name}','${request.amount}')`
-
-        database.init(createTableQuery)
+        const insertQuery = `INSERT INTO ${process.env.LOANTABLE} (name, loan) VALUES ('${request.name}','${request.amount}')`
 
 
-        // Database still isnt  automacally recognizing table , its an async issue
+        database.createTable(process.env.LOANTABLE,`(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), loan INT)`)
+
         database.insert(insertQuery)
-        
-        // Save to the database using mysql
-        // Checks if database exist if it doesnt then it creates it
+       
         return request.name
     }
 
