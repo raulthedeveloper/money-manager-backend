@@ -6,6 +6,14 @@ const PORT = process.env.PORT || 4000;
 const  jwt  = require('jsonwebtoken');
 require('dotenv').config();
 
+
+
+
+const mysqlConnect = require('./database/mysqlConnect')
+
+const database = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE,process.env.AUTHTABLE)
+
+
 let refreshTokens = []
 
 app.post('/token',(req,res)=>{
@@ -15,10 +23,10 @@ app.post('/token',(req,res)=>{
   if(!refreshTokens.includes(refreshToken))return res.sendStatus(403)
 
   jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-    console.log(user)
     if(err) return res.sendStatus(403)
 
     const accessToken = generateAccessToken({name:user.name})
+
     res.json({accessToken:accessToken})
   })
 
@@ -26,17 +34,53 @@ app.post('/token',(req,res)=>{
 })
 
 app.delete('/logout', (req,res) => {
-  refreshTokens = refreshTokens.filter(token =>token !== req.body.token)
+
+  let sql = `DELETE FROM ${process.env.AUTHTABLE} WHERE token='${req.body.token}';`  
+
+  database.deleteRecord(sql)
+
+  sql =  `select * from ${process.env.AUTHTABLE} where '${req.body.token}' = token`
+
+  
+  
+
+  database.queryRow(sql, function(err,data){
+    if (err) {
+        // error handling code goes here
+        refreshTokens = []
+        console.log("ERROR : ",err);            
+    } else {    
+        
+        // code to execute on data retrieval
+        console.log("result from db is : ",data);   
+    }    
+
+});
+
+  
+
   res.sendStatus(204)
 })
 
-app.post('/login',(req, res) => {
-const username = req.body.user_name
-const user = { name: username }
+  app.post('/login',(req, res) => {
+  const username = req.body.user_name
+  const user = { name: username }
 
   const accessToken = generateAccessToken(user)
-
   const refreshToken = jwt.sign(user,process.env.REFRESH_TOKEN_SECRET)
+
+
+  try{
+
+  const insertQuery = `INSERT INTO ${process.env.AUTHTABLE} (token) VALUES ('${refreshToken}')`
+
+
+  database.insert(insertQuery)
+  }
+  catch{
+    res.sendStatus(500)
+  }
+  
 
   refreshTokens.push(refreshToken)
 
@@ -46,29 +90,12 @@ const user = { name: username }
 
 
 function generateAccessToken(user){
-  return jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn: '25s'})
+  return jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn: '1h'})
 }
 
 
 
-// function authenticateToken(req, res, next){
 
-
-//   const authHeader = req.headers['authorization']
-
-
-//   const token = authHeader && authHeader.split(' ')[1]
-
-//   if(token == null) return res.sendStatus(401)
-
-//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err,user)=>{
-
-//       if (err) return res.sendStatus(403)
-//       // check if request user = user
-//       req.user = user
-//       next()
-//     })
-//   }
 
 
 
@@ -77,7 +104,9 @@ function generateAccessToken(user){
 app.listen(PORT, () => {
 
   console.log(`Server is listening on port ${PORT}`)
+  const createTableQuery = '(id INT AUTO_INCREMENT PRIMARY KEY, token VARCHAR(255) UNIQUE)'
 
+  database.createTable(process.env.AUTHTABLE,createTableQuery)
 
 });
 

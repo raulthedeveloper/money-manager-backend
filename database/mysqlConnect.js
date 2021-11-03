@@ -1,6 +1,8 @@
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
-const { response } = require('express');
+const {
+  response
+} = require('express');
 
 
 module.exports = class mySqlConnect {
@@ -28,7 +30,7 @@ module.exports = class mySqlConnect {
     const salt = await bcrypt.genSalt(6);
     const hashed = await bcrypt.hash(password, salt);
 
-  
+
     return hashed
   }
 
@@ -44,42 +46,63 @@ module.exports = class mySqlConnect {
 
   }
 
-   async queryTable(sql,callback,request,response){
+  makeQueryREST(response,id,table,column){
+    var con = this.connection()
 
-    this.connection().query(sql, function (err, result) {
+    let sql =`SELECT * FROM ${table} WHERE ${column} = '${id}'`
+
+    con.query(sql, function (err, result) {
       if (err) throw err;
+      response.json(result);
+    });
+  }
 
+  queryRow(sql,returnValue) {
 
-      callback(result,request,response)
+    var con = this.connection()
 
-      
-      });
+    
+    con.query(sql, function (err, result) {
+      if (err) throw err;
+      returnValue(result)
+    });
+
 
 
   }
 
-  deleteRecord(sql){
+  deleteRecord(sql) {
     // Deletes record
+
+    var con = this.connection()
+
+    con.query(sql, function (err, result) {
+      if (err) throw err;
+      console.log("Number of records deleted: " + result.affectedRows);
+    });
+
+
+
   }
 
 
-  async createTable(table,createTableQuery) {
+  async createTable(table, createTableQuery) {
     var con = this.connection()
 
     var sql = `CREATE TABLE IF NOT EXISTS ${table}  ${createTableQuery}`
 
-      const queryDB = await con.query(sql, function (err, result) {
-          if (err) throw err;
-          console.log(`${table} table created`);
-        });
-    
+    const queryDB = await con.query(sql, function (err, result) {
+      if (err) throw err;
+      console.log(`${table} table created`);
+    });
 
 
-    
+
+
   }
 
-   createNewDatabase(){
-    var  con = mysql.createConnection({
+  createNewDatabase() {
+    var con = mysql.createConnection({
       host: this.host,
       user: this.user,
       password: this.password,
@@ -93,50 +116,7 @@ module.exports = class mySqlConnect {
   }
 
 
-  // async createDatabase(database, table, createTableQuery) {
-  //   var con = mysql.createConnection({
-  //     host: this.host,
-  //     user: this.user,
-  //     password: this.password,
-  //   });
 
-  //   var sql = `SHOW DATABASES LIKE '${this.database}'`;
-
-
-  //   con.query(sql, function (err, result) {
-  //     if (err) throw err;
-  //     if (result.length == 0) {
-  //       console.log('No database exists')
-  //       var sql = `CREATE DATABASE IF NOT EXISTS ${database}`;
-
-  //       con.query(sql, function (err, result) {
-  //         if (err) throw err;
-  //         console.log("database created");
-  //       });
-
-  //       sql = `USE ${database}`
-
-  //       con.query(sql, function (err, result) {
-  //         if (err) throw err;
-  //         console.log(`${database} database selected`);
-  //       });
-
-  //       sql = `CREATE TABLE ${table} ${createTableQuery}`
-
-  //       con.query(sql, function (err, result) {
-  //         if (err) throw err;
-  //         console.log(`${table} table created`);
-  //       });
-
-  //     } else {
-  //       console.log('database exists')
-
-  //     }
-  //   });
-
-
-
-  // }
 
 
 }

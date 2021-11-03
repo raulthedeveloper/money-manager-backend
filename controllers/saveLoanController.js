@@ -14,17 +14,18 @@ module.exports = class SaveLoanController {
                   
     }
 
-    create(request)
+    create(request,id)
     {
     
 
         const database = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE, process.env.LOANTABLE)
 
 
-        const insertQuery = `INSERT INTO ${process.env.LOANTABLE} (name, loan) VALUES ('${request.name}','${request.amount}')`
+        const insertQuery = `INSERT INTO ${process.env.LOANTABLE} (user_id, name, loan) VALUES ('${id}','${request.name}','${request.amount}')`
 
 
-        database.createTable(process.env.LOANTABLE,`(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), loan INT)`)
+
+        database.createTable(process.env.LOANTABLE,`(id INT AUTO_INCREMENT PRIMARY KEY, user_id VARCHAR(255), name VARCHAR(255), loan INT, FOREIGN KEY (user_id) REFERENCES users(user_id))`)
 
         database.insert(insertQuery)
        

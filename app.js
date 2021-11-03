@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 3300;
 const HomeController = require('./controllers/homeController')
 const SaveLoanController = require('./controllers/saveLoanController')
 const CreateUser = require('./controllers/userController')
-const LoginController = require('./controllers/loginController');
+const DashBoardController = require('./controllers/dashboardController')
 const  jwt  = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -15,8 +15,9 @@ const mysqlConnect = require('./database/mysqlConnect')
 
 const save = new SaveLoanController; 
 const createUser = new CreateUser;
-const login = new LoginController;
+const userDashboard = new DashBoardController
 
+const databaseCreate = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE, process.env.LOANTABLE)
 
 
 
@@ -31,28 +32,21 @@ app.get('/', (req, res) => {
 });
 
 // Add User Id to route
-app.post('/save_loan/:id',(req,res)=>{
-  res.send(save.create(req.body))
+app.post('/save_loan/:id',authenticateToken,(req,res)=>{
+  res.send(save.create(req.body,req.params.id))
 
 })
 
 app.post('/create_user',(req,res)=>{
-    createUser.create(req.body)
+    createUser.create(req.body,res)
     res.send()
 })
 
 
 
-// app.post('/login',(req,res)=>{
 
-//   login.authenticateUser(req.body,res)
- 
-  
-// })
-
-
-app.get('/dashboard',authenticateToken,(req, res) => {
-  res.send(req.user)
+app.get('/dashboard/:id',authenticateToken,(req, res) => {
+  databaseCreate.makeQueryREST(res,req.params.id,process.env.LOANTABLE,'user_id')
 });
 
 
@@ -82,7 +76,6 @@ function authenticateToken(req, res, next){
 
 
 app.listen(PORT, () => {
-  const databaseCreate = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE, process.env.LOANTABLE)
 
   console.log(`Server is listening on port ${PORT}`)
 databaseCreate.createNewDatabase()
