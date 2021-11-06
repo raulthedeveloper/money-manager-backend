@@ -6,16 +6,23 @@ const PORT = process.env.PORT || 3300;
 const HomeController = require('./controllers/homeController')
 const SaveLoanController = require('./controllers/saveLoanController')
 const CreateUser = require('./controllers/userController')
-const DashBoardController = require('./controllers/dashboardController')
 const  jwt  = require('jsonwebtoken');
 require('dotenv').config();
+var cors = require('cors')
+
+app.use(cors())
+
+var corsOptions = {
+  origin: process.env.CORS,
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
 
 const mysqlConnect = require('./database/mysqlConnect')
 
 
 const save = new SaveLoanController; 
 const createUser = new CreateUser;
-const userDashboard = new DashBoardController
 
 const databaseCreate = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE, process.env.LOANTABLE)
 
@@ -32,23 +39,29 @@ app.get('/', (req, res) => {
 });
 
 // Add User Id to route
-app.post('/save_loan/:id',authenticateToken,(req,res)=>{
+app.post('/save_loan/:id',(req,res)=>{
   res.send(save.create(req.body,req.params.id))
 
 })
 
-app.post('/create_user',(req,res)=>{
+app.post('/create_user',cors(),(req,res)=>{
     createUser.create(req.body,res)
-    res.send()
+    res.send('success')
 })
 
 
 
 
-app.get('/dashboard/:id',authenticateToken,(req, res) => {
+app.get('/dashboard/:id',(req, res) => {
   databaseCreate.makeQueryREST(res,req.params.id,process.env.LOANTABLE,'user_id')
 });
 
+
+app.post('/user_id',authenticateToken,(req,res) =>{
+  console.log(req.headers)
+  console.log(req.body)
+  databaseCreate.getUserId(res,req.body.user_name,process.env.USERTABLE,'user_name')
+})
 
 
 

@@ -5,13 +5,19 @@ app.use(express.json())
 const PORT = process.env.PORT || 4000;
 const  jwt  = require('jsonwebtoken');
 require('dotenv').config();
-
-
-
-
 const mysqlConnect = require('./database/mysqlConnect')
-
 const database = new mysqlConnect(process.env.HOST, process.env.USERNAME, process.env.PASSWORD, process.env.LOANDATABASE,process.env.AUTHTABLE)
+
+
+var cors = require('cors')
+
+app.use(cors())
+var corsOptions = {
+  origin: process.env.CORS,
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
+
 
 
 let refreshTokens = []
@@ -33,7 +39,7 @@ app.post('/token',(req,res)=>{
 
 })
 
-app.delete('/logout', (req,res) => {
+app.delete('/logout',cors(), (req,res) => {
 
   let sql = `DELETE FROM ${process.env.AUTHTABLE} WHERE token='${req.body.token}';`  
 

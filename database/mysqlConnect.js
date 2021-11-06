@@ -57,6 +57,19 @@ module.exports = class mySqlConnect {
     });
   }
 
+  getUserId(response,user_name,table,column){
+    var con = this.connection()
+
+    let sql =`SELECT * FROM ${table} WHERE ${column} = '${user_name}'`
+
+    con.query(sql, function (err, result) {
+      if (err) throw err;
+      console.log(result)
+      response.json(result[0].user_id);
+    });
+    con.end()
+  }
+
   queryRow(sql,returnValue) {
 
     var con = this.connection()
