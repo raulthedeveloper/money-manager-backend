@@ -32,14 +32,11 @@ const databaseCreate = new mysqlConnect(process.env.HOST, process.env.USERNAME, 
 
 
 
-app.get('/', (req, res) => {
-  const home = new HomeController;
-  res.send(home.index('<h1>Some HTML</h1>'));
-  
-});
 
 // Add User Id to route
 app.post('/save_loan/:id',(req,res)=>{
+  console.log(req.body)
+  console.log(req.params)
   res.send(save.create(req.body,req.params.id))
 
 })
@@ -56,11 +53,15 @@ app.get('/dashboard/:id',(req, res) => {
   databaseCreate.makeQueryREST(res,req.params.id,process.env.LOANTABLE,'user_id')
 });
 
+app.get('/get_loans/:id',(req, res) => {
+  databaseCreate.makeQueryREST(res,req.params.id,process.env.LOANTABLE,'user_id')
+});
 
-app.post('/user_id',authenticateToken,(req,res) =>{
+
+app.post('/user_id',(req,res) =>{
   console.log(req.headers)
   console.log(req.body)
-  databaseCreate.getUserId(res,req.body.user_name,process.env.USERTABLE,'user_name')
+  databaseCreate.getUserId(res,req.body.email,process.env.USERTABLE,'email')
 })
 
 

@@ -57,10 +57,10 @@ module.exports = class mySqlConnect {
     });
   }
 
-  getUserId(response,user_name,table,column){
+  getUserId(response,email,table,column){
     var con = this.connection()
 
-    let sql =`SELECT * FROM ${table} WHERE ${column} = '${user_name}'`
+    let sql =`SELECT * FROM ${table} WHERE ${column} = '${email}'`
 
     con.query(sql, function (err, result) {
       if (err) throw err;

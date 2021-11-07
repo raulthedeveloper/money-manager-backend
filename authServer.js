@@ -69,10 +69,11 @@ app.delete('/logout',cors(), (req,res) => {
 })
 
   app.post('/login',(req, res) => {
-  const username = req.body.user_name
-  const user = { name: username }
+  const email = req.body.email
+  const user = { name: email }
 
   const accessToken = generateAccessToken(user)
+  console.log(accessToken)
   const refreshToken = jwt.sign(user,process.env.REFRESH_TOKEN_SECRET)
 
 

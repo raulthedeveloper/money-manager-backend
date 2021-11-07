@@ -21,7 +21,7 @@ module.exports = class LoginController {
 
         try {
             const queryPassword = query[0].password
-            const queryUserName = query[0].user_name
+            const queryUserName = query[0].email
 
             if(queryPassword == null){
                 return response.status(400)
@@ -36,8 +36,8 @@ module.exports = class LoginController {
 
                 
                 // give web token here
-                const username = request.user_name
-                const user = {name: username}
+                const email = request.email
+                const user = {name: email}
 
                 
 
@@ -68,7 +68,7 @@ module.exports = class LoginController {
         console.log('Its time to authenticate')
       
 
-       const insertQuery = `SELECT user_name, password FROM ${database.table} WHERE user_name LIKE "${request.user_name}"`
+       const insertQuery = `SELECT email, password FROM ${database.table} WHERE email LIKE "${request.email}"`
     //    AND password LIKE "$2b$06$XZj7ppDnGew/RRfOx1U/WuTz.wq0kwyZgdVLWH.FzYWtCK0taC.mm"
        database.queryTable(insertQuery,this.processResult,request,response)
 
